@@ -359,6 +359,29 @@ display two sources: A list of open buffers and a list of applications (from
   (setzerOS/focus-window-in-direction 'below))
 
 ;; ===================
+;; | Buffer Renaming |
+;; ===================
+
+(defvar setzerOS/buffers-to-avoid-rename
+  '())
+
+(defun setzerOS/exwm-auto-rename-buffer ()
+  "A wrapper for `spacemacs/exwm-rename-buffer', which avoids renaming buffers inside
+the list `setzerOS/buffers-to-avoid-rename'"
+  (when (not (-contains? setzerOS/buffers-to-avoid-rename
+                         (current-buffer)))
+    (spacemacs/exwm-rename-buffer)))
+
+(defun setzerOS/exwm-rename-buffer ()
+  "A wrapper for `rename-buffer' that puts the renamed buffer
+inside `setzerOS/buffers-to-avoid-rename'."
+  (interactive)
+  (let ((new-name (read-string "New buffer name: "))
+        (buffer (current-buffer)))
+    (rename-buffer new-name)
+    (add-to-list 'setzerOS/buffers-to-avoid-rename buffer)))
+
+;; ===================
 ;; | setzerOS splits |
 ;; ===================
 

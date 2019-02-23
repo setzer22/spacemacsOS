@@ -110,8 +110,8 @@
     (eval-after-load 'persp-mode
       (advice-add 'persp-init-new-frame :before-until 'spacemacs//exwm-persp-mode-inhibit-p))
 
-    (add-hook 'exwm-update-class-hook 'spacemacs/exwm-rename-buffer)
-    (add-hook 'exwm-update-title-hook 'spacemacs/exwm-rename-buffer)
+    (add-hook 'exwm-update-class-hook 'setzerOS/exwm-auto-rename-buffer)
+    (add-hook 'exwm-update-title-hook 'setzerOS/exwm-auto-rename-buffer)
 
     ;; kick all exwm buffers into insert mode per default
     (add-hook 'exwm-manage-finish-hook (lambda () (call-interactively #'exwm-input-release-keyboard)))
