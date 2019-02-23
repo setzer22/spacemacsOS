@@ -40,7 +40,7 @@
     (setq switch-window-multiple-frames t)
     (setq switch-window-shortcut-style 'qwerty)))
 
-(defun exwm/init-symon ()
+(defun exwm/init-symon-lingr ()
   (use-package symon-lingr
     :config
     (setq symon-monitors
