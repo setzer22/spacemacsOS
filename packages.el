@@ -195,6 +195,8 @@
                           (spacemacs/exwm-run-program-in-home "qterminal")))
     (exwm-input-set-key (kbd "s-B") 'setzerOS/helm-application-launcher)
 
+    (exwm-input-set-key (kbd "s-c") 'calc)
+
     ;; WM commands
     (exwm-input-set-key (kbd "s-w") 'delete-other-windows)
     (exwm-input-set-key (kbd "s-h") #'setzerOS/focus-window-left)
