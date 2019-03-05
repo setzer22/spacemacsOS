@@ -237,8 +237,10 @@
     ;; buggy:
     (exwm-input-set-key (kbd "s-SPC") spacemacs-default-map)
 
-    ;; User s-Q to close buffers
+    ;; Use s-Q to close buffers
     (exwm-input-set-key (kbd "s-Q") 'spacemacs/kill-this-buffer)
+    ;; Use s-q to close windows 
+    (exwm-input-set-key (kbd "s-q") 'setzerOS/delete-window-unless-last)
 
     ;; Universal Get-me-outta-here
     (push ?\C-g exwm-input-prefix-keys)

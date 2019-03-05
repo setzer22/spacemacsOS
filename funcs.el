@@ -392,3 +392,15 @@ inside `setzerOS/buffers-to-avoid-rename'."
   (let ((w (window-right (selected-window))))
     (split-window w
                   (truncate (- (* 0.3 (window-total-height w)))) 'below)))
+
+
+;; ======================================
+;; | setzerOS delete window unless last |
+;; ======================================
+
+(defun setzerOS/delete-window-unless-last ()
+  (interactive)
+  (if (> (length (window-list)) 1)
+      (delete-window)
+    (print "Cannot delete last window in frame")))
+
