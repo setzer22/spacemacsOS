@@ -445,3 +445,30 @@ will print \"Firefox/Mozilla Firefox\" to the *Messages* buffer after firefox is
 ;; | setzerOS Utility functions using run-command-buffer-callback |
 ;; ================================================================
 
+;; ============================
+;; | setzerOS Modeline tweaks |
+;; ============================
+
+(defpowerline powerline-close-window
+  (propertize "⨉"
+              'mouse-face 'mode-line-highlight
+              'help-echo "Close this window"
+              'local-map (let ((map (make-sparse-keymap)))
+			                     (define-key map [mode-line mouse-1] 'mode-line-previous-buffer)
+			                     map)))
+
+(defpowerline powerline-toggle-float
+  (propertize "⬜"
+              'mouse-face 'mode-line-highlight
+              'help-echo "Toggle floating state"
+              'local-map (let ((map (make-sparse-keymap)))
+			                     (define-key map [mode-line mouse-1] 'exwm-floating-toggle-floating)
+			                     map)))
+
+(spaceline-define-segment exwm-buttons
+  "Docstring"
+  (list
+   (powerline-toggle-float)
+   (powerline-close-window))
+  :priority 110
+  :enabled 't)

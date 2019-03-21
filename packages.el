@@ -298,21 +298,48 @@
     (setq exwm-randr-workspace-output-plist
           (-interleave (number-sequence 0 9)
                        (-flatten (-repeat 5 '("eDP1" "DP1")))))
-    (exwm-randr-enable)))
+    (exwm-randr-enable)
 
-    ;; behavior of Emacs. The argument to `exwm-input-set-simulation-keys' is a
-    ;; list of cons cells (SRC . DEST), where SRC is the key sequence you press and
-    ;; DEST is what EXWM actually sends to application. Note that SRC must be a key
-    ;; sequence (of type vector or string), while DEST can also be a single key.
-
-    ;; (exwm-input-set-simulation-keys
-    ;;  '(([?\C-b] . left)
-    ;;    ([?\C-f] . right)
-    ;;    ([?\C-p] . up)
-    ;;    ([?\C-n] . down)
-    ;;    ([?\M-v] . prior)
-    ;;    ))
-
-    ;; Do not forget to enable EXWM. It will start by itself when things are ready.
-    ;; (exwm-enable)
-    
+    ;; Custom Modeline (it's almost equal to spacemacs modeline)
+    (spaceline-compile
+      ;; left side
+      '(((persp-name
+          workspace-number
+          window-number)
+         :fallback evil-state
+         :face highlight-face
+         :priority 100)
+        (exwm-buttons :when (and active (eq major-mode 'exwm-mode)))
+        (anzu :priority 95)
+        auto-compile
+        ((buffer-modified buffer-size buffer-id remote-host)
+         :priority 98)
+        (major-mode :priority 79)
+        (process :when active)
+        ((flycheck-error flycheck-warning flycheck-info)
+         :when active
+         :priority 89)
+        (minor-modes :when active
+                     :priority 9)
+        (mu4e-alert-segment :when active)
+        (erc-track :when active)
+        (version-control :when active
+                         :priority 78)
+        (org-pomodoro :when active)
+        (org-clock :when active)
+        nyan-cat)
+      ;; right side
+      '(which-function
+        (python-pyvenv :fallback python-pyenv)
+        (purpose :priority 94)
+        (battery :when active)
+        (selection-info :priority 95)
+        input-method
+        ((buffer-encoding-abbrev
+          point-position
+          line-column)
+         :separator " | "
+         :priority 96)
+        (global :when active)
+        (buffer-position :priority 99)
+        (hud :priority 99)))))
