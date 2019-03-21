@@ -300,6 +300,8 @@
                        (-flatten (-repeat 5 '("eDP1" "DP1")))))
     (exwm-randr-enable)
 
+    (require 'spaceline)
+
     ;; Custom Modeline (it's almost equal to spacemacs modeline)
     (spaceline-compile
       ;; left side
