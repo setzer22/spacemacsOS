@@ -92,7 +92,10 @@
     (spacemacs/toggle-maximize-buffer)))
 
 (defun spacemacs/exwm-run-program-in-home (command)
-  (let ((default-directory user-home-directory))
+  (let ((default-directory user-home-directory)
+        (command (concat
+                  "~/.emacs.d/private/local/exwm/exwm-launch.sh "
+                  command)))
     (start-process-shell-command command nil command)))
 
 (defun spacemacs/exwm-app-launcher (command)
@@ -372,6 +375,11 @@ the list `setzerOS/buffers-to-avoid-rename'"
                          (current-buffer)))
     (spacemacs/exwm-rename-buffer)))
 
+(defun setzerOS/exwm-rename-buffer-impl (buffer new-name)
+  (with-current-buffer buffer
+    (rename-buffer new-name)
+    (add-to-list 'setzerOS/buffers-to-avoid-rename buffer)))
+
 (defun setzerOS/exwm-rename-buffer ()
   "A wrapper for `rename-buffer' that puts the renamed buffer
 inside `setzerOS/buffers-to-avoid-rename'."
@@ -450,28 +458,27 @@ will print \"Firefox/Mozilla Firefox\" to the *Messages* buffer after firefox is
 ;; ============================
 
 (with-eval-after-load "powerline"
-    (defpowerline powerline-close-window
-      (propertize "⨉"
-                  'mouse-face 'mode-line-highlight
-                  'help-echo "Close this window"
-                  'local-map (let ((map (make-sparse-keymap)))
-			                         (define-key map [mode-line mouse-1] 'mode-line-previous-buffer)
-			                         map))))
+  (defpowerline powerline-close-window
+    (propertize "⨉"
+                'mouse-face 'mode-line-highlight
+                'help-echo "Close this window"
+                'local-map (let ((map (make-sparse-keymap)))
+			                       (define-key map [mode-line mouse-1] 'mode-line-previous-buffer)
+			                       map)))
 
-(with-eval-after-load "powerline"
-    (defpowerline powerline-toggle-float
-      (propertize "⬜"
-                  'mouse-face 'mode-line-highlight
-                  'help-echo "Toggle floating state"
-                  'local-map (let ((map (make-sparse-keymap)))
-			                         (define-key map [mode-line mouse-1] 'exwm-floating-toggle-floating)
-			                         map))))
+  (defpowerline powerline-toggle-float
+    (propertize "⬜"
+                'mouse-face 'mode-line-highlight
+                'help-echo "Toggle floating state"
+                'local-map (let ((map (make-sparse-keymap)))
+			                       (define-key map [mode-line mouse-1] 'exwm-floating-toggle-floating)
+			                       map))))
 
 (with-eval-after-load "spaceline"
-    (spaceline-define-segment exwm-buttons
-      "Docstring"
-      (list
-       (powerline-toggle-float)
-       (powerline-close-window))
-      :priority 110
-      :enabled 't))
+  (spaceline-define-segment exwm-buttons
+    "Docstring"
+    (list
+     (powerline-toggle-float)
+     (powerline-close-window))
+    :priority 110
+    :enabled 't))
