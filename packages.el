@@ -13,16 +13,18 @@
 ;; List of all packages to install and/or initialize. Built-in packages
 ;; which require an initialization must be listed explicitly in the list.
 (setq exwm-packages
-    '(cl-generic
-      ;; (xelb :location (recipe :fetcher github
-      ;;                         :repo "ch11ng/xelb")
-      ;;       :step pre)
-      ;; (exwm :location (recipe :fetcher github
-      ;;                         :repo "ch11ng/exwm")
-      ;;       :step pre)
-      (xelb :location elpa)
-      (exwm :location elpa)
-      ))
+      '(cl-generic
+        ;; (xelb :location (recipe :fetcher github
+        ;;                         :repo "ch11ng/xelb")
+        ;;       :step pre)
+        ;; (exwm :location (recipe :fetcher github
+        ;;                         :repo "ch11ng/exwm")
+        ;;       :step pre)
+        (xelb :location elpa)
+        (exwm :location elpa)
+        symon-lingr
+        switch-window
+        ))
 
 (defun exwm/init-cl-generic ()
   (use-package cl-generic
@@ -31,18 +33,46 @@
 (defun exwm/init-xelb ()
   (use-package xelb))
 
+(defun exwm/init-switch-window ()
+  (use-package switch-window
+    :config
+    (setq switch-window-input-style 'minibuffer)
+    (setq switch-window-multiple-frames t)
+    (setq switch-window-shortcut-style 'qwerty)))
+
+(defun exwm/init-symon-lingr ()
+  (use-package symon-lingr
+    :config
+    (setq symon-monitors
+          '(symon-linux-memory-monitor
+            symon-linux-cpu-monitor
+            symon-linux-network-rx-monitor
+            symon-linux-network-tx-monitor
+            symon-linux-battery-monitor))
+    (setq symon-delay 5)))
+
 (defun exwm/init-exwm ()
   (use-package exwm
     :init
     ;; Disable dialog boxes since they are unusable in EXWM
     (setq use-dialog-box nil)
-    ;; 10 Worskpaces please
-    (setq exwm-workspace-number 1)
+    ;; 5 Worskpaces please
+    (setq exwm-workspace-number 5)
     ;; You may want Emacs to show you the time
     (display-time-mode t)
     (when exwm--hide-tiling-modeline
       (add-hook 'exwm-mode-hook #'hidden-mode-line-mode))
     (setq exwm-input-line-mode-passthrough t)
+    ;; Show buffers from all workspaces/frames
+    (setq exwm-workspace-show-all-buffers 't)
+    (setq exwm-layout-show-all-buffers 't)
+
+    ;; Focus follows mouse:
+    ;;(setq mouse-autoselect-window t)
+    ;;(setq focus-follows-mouse t)
+
+
+    ;; The following example demonstrates how to use simulation keys to mimic the
     ;; Trying to make shell-pop with a real terminal :P
     ;; (defun exwm-launch-term ()
     ;;   (start-process-shell-command exwm--terminal-command
@@ -80,13 +110,8 @@
     (eval-after-load 'persp-mode
       (advice-add 'persp-init-new-frame :before-until 'spacemacs//exwm-persp-mode-inhibit-p))
 
-    (exwm-input-set-key (kbd "<s-return>")
-                        (lambda ()
-                          (interactive)
-                          (start-process-shell-command exwm-terminal-command nil exwm-terminal-command)))
-
-    (add-hook 'exwm-update-class-hook 'spacemacs/exwm-rename-buffer)
-    (add-hook 'exwm-update-title-hook 'spacemacs/exwm-rename-buffer)
+    (add-hook 'exwm-update-class-hook 'setzerOS/exwm-auto-rename-buffer)
+    (add-hook 'exwm-update-title-hook 'setzerOS/exwm-auto-rename-buffer)
 
     ;; kick all exwm buffers into insert mode per default
     (add-hook 'exwm-manage-finish-hook (lambda () (call-interactively #'exwm-input-release-keyboard)))
@@ -100,6 +125,13 @@
 
     (defadvice exwm-workspace-switch (before save-toggle-workspace activate)
       (setq exwm-toggle-workspace exwm-workspace-current-index))
+
+    ;; Startup programs
+    (add-hook 'exwm-init-hook
+              (lambda ()
+                (spacemacs/exwm-run-program-in-home
+                 "compton --config ~/.compton.conf")))
+    (add-hook 'exwm-init-hook (lambda () (symon-mode)))
 
     ;; `exwm-input-set-key' allows you to set a global key binding (available in
     ;; any case). Following are a few examples.
@@ -140,6 +172,41 @@
     (exwm-input-set-key (kbd "<s-pause>")
                         (lambda () (interactive) (start-process-shell-command "lock" nil exwm--locking-command)))
 
+    ;; Program Launchers
+    (exwm-input-set-key (kbd "s-I")
+                        (lambda () (interactive)
+                          (setzerOS/find-or-create "^Firefox/.*$" "firefox")))
+    (exwm-input-set-key (kbd "s-O")
+                        (lambda () (interactive)
+                          (setzerOS/find-or-create "^Dolphin/.*$"
+                                                   "export $(dbus-launch) && dolphin")))
+    (exwm-input-set-key (kbd "s-T")
+                        (lambda () (interactive)
+                          (setzerOS/find-or-create "^TelegramDesktop/.*$"
+                                                   "telegram-desktop")))
+    (exwm-input-set-key (kbd "s-M") 
+                        (lambda () (interactive)
+                          (setzerOS/find-or-create "^Thunderbird/.*$" "thunderbird")))
+    (exwm-input-set-key (kbd "<s-return>")
+                        (lambda () (interactive)
+                          (setzerOS/find-or-create "^qterminal/.*$" "qterminal")))
+    (exwm-input-set-key (kbd "<S-s-return>")
+                        (lambda () (interactive)
+                          (spacemacs/exwm-run-program-in-home "qterminal")))
+    (exwm-input-set-key (kbd "s-B") 'setzerOS/helm-application-launcher)
+
+    (exwm-input-set-key (kbd "s-c") 'calc)
+
+    ;; WM commands
+    (exwm-input-set-key (kbd "s-w") 'delete-other-windows)
+    (exwm-input-set-key (kbd "s-h") #'setzerOS/focus-window-left)
+    (exwm-input-set-key (kbd "s-j") #'setzerOS/focus-window-down)
+    (exwm-input-set-key (kbd "s-k") #'setzerOS/focus-window-up)
+    (exwm-input-set-key (kbd "s-l") #'setzerOS/focus-window-right)
+
+    ;; Evil-ex
+    (exwm-input-set-key (kbd "s-:") #'evil-ex)
+
     ;; ensure that when char mode is left, state is restored to normal
     (advice-add 'exwm-input-grab-keyboard :after (lambda (&optional id)
                                                    (evil-normal-state)))
@@ -159,11 +226,11 @@
     exwm-input-prefix-keys"
       (let ((key (kbd key)))
         (if (and (sequencep key)
-                (= (length key) 1))
-           (etypecase key
-             (string (string-to-char key))
-             (vector (elt key 0)))
-         (error "cannot convert to key event: %s" key))))
+                 (= (length key) 1))
+            (etypecase key
+              (string (string-to-char key))
+              (vector (elt key 0)))
+          (error "cannot convert to key event: %s" key))))
 
     ;; (push ?\  exwm-input-prefix-keys)
     (push (spacemacs//exwm-convert-key-to-event dotspacemacs-leader-key) exwm-input-prefix-keys)
@@ -172,8 +239,10 @@
     ;; buggy:
     (exwm-input-set-key (kbd "s-SPC") spacemacs-default-map)
 
-    ;; User s-q to close buffers
-    (exwm-input-set-key (kbd "s-q") 'spacemacs/kill-this-buffer)
+    ;; Use s-Q to close buffers
+    (exwm-input-set-key (kbd "s-Q") 'spacemacs/kill-this-buffer)
+    ;; Use s-q to close windows 
+    (exwm-input-set-key (kbd "s-q") 'setzerOS/delete-window-unless-last)
 
     ;; Universal Get-me-outta-here
     (push ?\C-g exwm-input-prefix-keys)
@@ -210,11 +279,6 @@
     (exwm-input-set-key (kbd "s-U") #'winner-redo)
     ;; Change buffers
     (exwm-input-set-key (kbd "s-b") #'ivy-switch-buffer)
-    ;; Focusing windows
-    (exwm-input-set-key (kbd "s-h") #'evil-window-left)
-    (exwm-input-set-key (kbd "s-j") #'evil-window-down)
-    (exwm-input-set-key (kbd "s-k") #'evil-window-up)
-    (exwm-input-set-key (kbd "s-l") #'evil-window-right)
     ;; Moving Windows
     (exwm-input-set-key (kbd "s-H") #'evil-window-move-far-left)
     (exwm-input-set-key (kbd "s-J") #'evil-window-move-very-bottom)
@@ -231,22 +295,60 @@
     (exwm-input-set-key (kbd "s-[") #'spacemacs/exwm-workspace-prev)
 
     (require 'exwm-randr)
-    (setq exwm-randr-workspace-output-plist '(0 "VGA1"))
+    (setq exwm-randr-workspace-output-plist
+          (-interleave (number-sequence 0 9)
+                       (-flatten (-repeat 5 '("eDP1" "DP1")))))
     (exwm-randr-enable)
-    ;; The following example demonstrates how to use simulation keys to mimic the
-    ;; behavior of Emacs. The argument to `exwm-input-set-simulation-keys' is a
-    ;; list of cons cells (SRC . DEST), where SRC is the key sequence you press and
-    ;; DEST is what EXWM actually sends to application. Note that SRC must be a key
-    ;; sequence (of type vector or string), while DEST can also be a single key.
 
-    ;; (exwm-input-set-simulation-keys
-    ;;  '(([?\C-b] . left)
-    ;;    ([?\C-f] . right)
-    ;;    ([?\C-p] . up)
-    ;;    ([?\C-n] . down)
-    ;;    ([?\M-v] . prior)
-    ;;    ))
+    ;; Per-window-class settings
+    (setq exwm-manage-configurations
+          '(((equal exwm-class-name "plasmashell")
+             floating nil)))
+    
 
-    ;; Do not forget to enable EXWM. It will start by itself when things are ready.
-    ;; (exwm-enable)
+    ;; Custom Modeline (it's almost equal to spacemacs modeline)
+    ;; (require 'spaceline)
+    ;; (with-eval-after-load "spaceline"
+    ;;   (spaceline-compile
+    ;;     ;; left side
+    ;;     '(((persp-name
+    ;;         workspace-number
+    ;;         window-number)
+    ;;        :fallback evil-state
+    ;;        :face highlight-face
+    ;;        :priority 100)
+    ;;       (exwm-buttons :when (and active (eq major-mode 'exwm-mode)))
+    ;;       (anzu :priority 95)
+    ;;       auto-compile
+    ;;       ((buffer-modified buffer-size buffer-id remote-host)
+    ;;        :priority 98)
+    ;;       (major-mode :priority 79)
+    ;;       (process :when active)
+    ;;       ((flycheck-error flycheck-warning flycheck-info)
+    ;;        :when active
+    ;;        :priority 89)
+    ;;       (minor-modes :when active
+    ;;                    :priority 9)
+    ;;       (mu4e-alert-segment :when active)
+    ;;       (erc-track :when active)
+    ;;       (version-control :when active
+    ;;                        :priority 78)
+    ;;       (org-pomodoro :when active)
+    ;;       (org-clock :when active)
+    ;;       nyan-cat)
+    ;;     ;; right side
+    ;;     '(which-function
+    ;;       (python-pyvenv :fallback python-pyenv)
+    ;;       (purpose :priority 94)
+    ;;       (battery :when active)
+    ;;       (selection-info :priority 95)
+    ;;       input-method
+    ;;       ((buffer-encoding-abbrev
+    ;;         point-position
+    ;;         line-column)
+    ;;        :separator " | "
+    ;;        :priority 96)
+    ;;       (global :when active)
+    ;;       (buffer-position :priority 99)
+    ;;       (hud :priority 99))))
     ))
