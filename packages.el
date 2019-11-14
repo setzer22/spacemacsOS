@@ -22,8 +22,8 @@
         ;;       :step pre)
         (xelb :location elpa)
         (exwm :location elpa)
-        symon-lingr
-        switch-window
+        ;;symon-lingr
+        ;;switch-window
         ))
 
 (defun exwm/init-cl-generic ()
@@ -33,23 +33,23 @@
 (defun exwm/init-xelb ()
   (use-package xelb))
 
-(defun exwm/init-switch-window ()
-  (use-package switch-window
-    :config
-    (setq switch-window-input-style 'minibuffer)
-    (setq switch-window-multiple-frames t)
-    (setq switch-window-shortcut-style 'qwerty)))
+;; (defun exwm/init-switch-window ()
+;;   (use-package switch-window
+;;     :config
+;;     (setq switch-window-input-style 'minibuffer)
+;;     (setq switch-window-multiple-frames t)
+;;     (setq switch-window-shortcut-style 'qwerty)))
 
-(defun exwm/init-symon-lingr ()
-  (use-package symon-lingr
-    :config
-    (setq symon-monitors
-          '(symon-linux-memory-monitor
-            symon-linux-cpu-monitor
-            symon-linux-network-rx-monitor
-            symon-linux-network-tx-monitor
-            symon-linux-battery-monitor))
-    (setq symon-delay 5)))
+;; (defun exwm/init-symon-lingr ()
+;;   (use-package symon-lingr
+;;     :config
+;;     (setq symon-monitors
+;;           '(symon-linux-memory-monitor
+;;             symon-linux-cpu-monitor
+;;             symon-linux-network-rx-monitor
+;;             symon-linux-network-tx-monitor
+;;             symon-linux-battery-monitor))
+;;     (setq symon-delay 5)))
 
 (defun exwm/init-exwm ()
   (use-package exwm
@@ -57,7 +57,7 @@
     ;; Disable dialog boxes since they are unusable in EXWM
     (setq use-dialog-box nil)
     ;; 5 Worskpaces please
-    (setq exwm-workspace-number 5)
+    (setq exwm-workspace-number 2)
     ;; You may want Emacs to show you the time
     (display-time-mode t)
     (when exwm--hide-tiling-modeline
@@ -131,7 +131,7 @@
               (lambda ()
                 (spacemacs/exwm-run-program-in-home
                  "compton --config ~/.compton.conf")))
-    (add-hook 'exwm-init-hook (lambda () (symon-mode)))
+    ;;(add-hook 'exwm-init-hook (lambda () (symon-mode)))
 
     ;; `exwm-input-set-key' allows you to set a global key binding (available in
     ;; any case). Following are a few examples.
@@ -176,6 +176,9 @@
     (exwm-input-set-key (kbd "s-I")
                         (lambda () (interactive)
                           (setzerOS/find-or-create "^Firefox/.*$" "firefox")))
+    (exwm-input-set-key (kbd "s-i")
+                        (lambda () (interactive)
+                          (setzerOS/ivy-select-browser-window)))
     (exwm-input-set-key (kbd "s-O")
                         (lambda () (interactive)
                           (setzerOS/find-or-create "^Dolphin/.*$"
@@ -189,10 +192,10 @@
                           (setzerOS/find-or-create "^Thunderbird/.*$" "thunderbird")))
     (exwm-input-set-key (kbd "<s-return>")
                         (lambda () (interactive)
-                          (setzerOS/find-or-create "^qterminal/.*$" "qterminal")))
+                          (setzerOS/find-or-create "^konsole/.*$" "konsole -e zsh")))
     (exwm-input-set-key (kbd "<S-s-return>")
                         (lambda () (interactive)
-                          (spacemacs/exwm-run-program-in-home "qterminal")))
+                          (spacemacs/exwm-run-program-in-home "konsole -e zsh")))
     (exwm-input-set-key (kbd "s-B") 'setzerOS/helm-application-launcher)
 
     (exwm-input-set-key (kbd "s-c") 'calc)
@@ -297,14 +300,13 @@
     (require 'exwm-randr)
     (setq exwm-randr-workspace-output-plist
           (-interleave (number-sequence 0 9)
-                       (-flatten (-repeat 5 '("eDP1" "DP1")))))
+                       (-flatten (-repeat 5 '("eDP-1" "DP-1")))))
     (exwm-randr-enable)
 
     ;; Per-window-class settings
     (setq exwm-manage-configurations
           '(((equal exwm-class-name "plasmashell")
              floating nil)))
-    
 
     ;; Custom Modeline (it's almost equal to spacemacs modeline)
     ;; (require 'spaceline)

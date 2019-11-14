@@ -484,3 +484,24 @@ will print \"Firefox/Mozilla Firefox\" to the *Messages* buffer after firefox is
      (powerline-close-window))
     :priority 110
     :enabled 't))
+
+;;;;;;;;;;;;;;;;;;;;;;
+;; Tabless Firefox  ;;
+;;;;;;;;;;;;;;;;;;;;;;
+
+(defun setzerOS/ivy-select-browser-window ()
+  (interactive)
+  (let ((bufs (find-buffers-matching-regexp "^firefox/.*$")))
+    (ivy-read "Select Browser Window: "
+              (-zip-with
+               (lambda (x y) (concat (number-to-string x) ".  " (buffer-name y)))
+               (number-sequence 1 (length bufs))
+               bufs)
+              :action '(1
+                        ("o" (lambda (x)
+                               (let ((buf-idx (string-to-number
+                                               (when (string-match "[0-9]+" x)
+                                                 (match-string 0 x)))))
+                                 (when buf-idx
+                                   (switch-to-buffer
+                                    (nth (- buf-idx 1) bufs))))))))))
