@@ -306,7 +306,8 @@
     ;; Per-window-class settings
     (setq exwm-manage-configurations
           '(((equal exwm-class-name "plasmashell")
-             floating nil)))
+             floating nil
+             managed nil)))
 
     ;; Custom Modeline (it's almost equal to spacemacs modeline)
     ;; (require 'spaceline)
