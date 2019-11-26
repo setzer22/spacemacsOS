@@ -196,6 +196,23 @@ Examples:
                            (first buffers))
       (spacemacs/exwm-run-program-in-home command))))
 
+(defun setzerOS/find-or-elisp-fun (buffer-regexp command)
+  "This function can be used as a helper function for hotkeys.
+`buffer-regexp' is a regexp that will try to match a buffer
+title. If found, the buffer will be brought to the currently
+selected window. Otherwise, `command', an elisp function.
+
+Examples:
+
+   (find-or-create \"^Firefox/.*$\" \"firefox\")
+   (find-or-create \"^Thunderbird/.*$\" \"thunderbird\")"
+
+  (let ((buffers (find-buffers-matching-regexp buffer-regexp)))
+    (if buffers
+        (set-window-buffer (selected-window)
+                           (first buffers))
+      (funcall command))))
+
 ;; =================================
 ;; | setzerOS application-launcher |
 ;; =================================
